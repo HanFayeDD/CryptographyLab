@@ -211,7 +211,7 @@ if __name__ == '__main__':
     d = get_d(e, (p-1)*(q-1))
     print('*'*10+' info begin '+'*'*10)
     print(f'p:{p}\nq:{q}\nn:{p*q}\ne:{e}\nd:{d}\nφ(n):{(p-1)*(q-1)}')
-    print('*'*10+' info begin '+'*'*10)
+    print('*'*10+' info end '+'*'*10)
 
     ##加密
     miwen = ''
