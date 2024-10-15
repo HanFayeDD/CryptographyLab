@@ -2,17 +2,24 @@ import random
 from sympy import isprime
 
 
-def process_string(filename: str) -> tuple[str, str]:
+def process_string(filename: str=None, textcontent: str=None) -> tuple[str, str]:
     """
     采用方法2进行处理，两个字符拼接成一共有6位的十进制数
     不足用000补齐
+    可以输入保存密文的文件名，也可以直接输入明文字符串
     Args:
         filename (str):明文文件名字
+        textcontent (str): 明文字符串
     Returns:
         tuple(str, str): 返回的ASCII码字符串(已经补齐)，文件内容
     """
-    with open(filename, 'r', encoding='utf-8') as f:
-        content = f.read().strip()
+    if filename is not None:
+        with open(filename, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+    elif textcontent is not None:
+        content = textcontent
+    else:
+        raise ValueError()
     fillcode = '000'
     fillflag = False if len(content) % 2 == 0 else True
     res = ''
@@ -73,10 +80,10 @@ def MR_isprime(num: int) -> bool:
         k += 1
     # print(f'(n-1)={num1}=(2**({k}))*{q}')
     a = random.randint(1+1, num1-1)
-    if a**q % num in (1, num-1):
+    if quick_pow(a, q, num) in (1, num-1):     
         return True
     for j in range(1, k, 1):
-        if a**((2**j)*q) % num == num-1:
+        if  quick_pow(a, (2**j)*q, num) == num-1:
             return True
     return False
 
@@ -84,7 +91,6 @@ def MR_isprime(num: int) -> bool:
 def getp_q(min_num: int = 1000, max_num: int = 10000) -> tuple:
     """
     获取p和q
-    !!!:p q为调库产生的随机数
     Args:
         min_num (int): 范围最小值
         max_num (int): 范围最大值
@@ -93,7 +99,7 @@ def getp_q(min_num: int = 1000, max_num: int = 10000) -> tuple:
     """
     p = 0
     q = 0
-    while abs(p-q) < (max_num-min_num)*0.2:
+    while abs(p-q) < int((max_num-min_num)//5):
         p = random.randint(min_num, max_num)
         q = random.randint(min_num, max_num)
     print(f'init p:{p}, init q:{q}')
@@ -137,7 +143,7 @@ def get_e(p: int, q: int) -> int:
         int: _description_
     """
     fi: int = (p-1)*(q-1)
-    lowerbound = int((fi-1)*0.2)
+    lowerbound = int((fi-1)//5)
     upperbound = fi-1
     e = random.randint(lowerbound, upperbound)
     while not gcd_isprime(e, fi):
@@ -199,12 +205,12 @@ def quick_pow(m: int, e: int, n: int) -> int:
 
 
 if __name__ == '__main__':
-    c, content = process_string(filename='exp2/lab2-Plaintext.txt')
+    c, content = process_string(filename="exp2/lab2-Plaintext.txt")
 
     if len(c) % 6 != 0:
         raise Exception('C is not a multiple of 6')
 
-    p, q = getp_q()
+    p, q = getp_q(min_num=2**128, max_num=2**129-1)
     lenmod = len(str(p*q))
     print(f'密文中一个分组的长度:{lenmod}')
     e = get_e(p, q)
@@ -220,7 +226,7 @@ if __name__ == '__main__':
         temp = str(quick_pow(int(buf), e, p*q))
         temp = temp.zfill(lenmod)
         miwen += temp
-    print(f'加密后密文:{miwen}')
+    print(f'加密后密文(密文分组每组长为{lenmod}，即模数的十进制位数，不足用0补齐):{miwen}')
 
     ##解密
     mingwen = ''
@@ -235,4 +241,4 @@ if __name__ == '__main__':
     print(f'解密后明文ASCII(已去除补全字符):{mingwen}')
     cdecode = ascciitostr(mingwen)
     print(f'解密后明文内容:\n{cdecode}')
-    print(content == cdecode)    
+    print("初始明文与解密后明文是否相等:", content == cdecode)    
