@@ -1,5 +1,6 @@
 import random
 from sympy import isprime
+import time
 
 
 def process_string(filename: str=None, textcontent: str=None) -> tuple[str, str]:
@@ -74,11 +75,9 @@ def MR_isprime(num: int) -> bool:
             if q % 2 == 1:
                 break
         if powof2 > num1:
-            # print(f'now 2**(k):{powof2} is larger than n-1:{num1}, return false for not prime')
             return False
         powof2 *= 2
         k += 1
-    # print(f'(n-1)={num1}=(2**({k}))*{q}')
     a = random.randint(1+1, num1-1)
     if quick_pow(a, q, num) in (1, num-1):     
         return True
@@ -200,7 +199,7 @@ def quick_pow(m: int, e: int, n: int) -> int:
         if e & 1:  # 是奇数
             ans = ans * m % n
         m = (m * m) % n  # 底数平方
-        e >>= 1  # 指数右移  /2
+        e >>= 1  # 指数右移 /2
     return ans
 
 
@@ -210,6 +209,7 @@ if __name__ == '__main__':
     if len(c) % 6 != 0:
         raise Exception('C is not a multiple of 6')
 
+    t1 = time.time()
     p, q = getp_q(min_num=2**128, max_num=2**129-1)
     lenmod = len(str(p*q))
     print(f'密文中一个分组的长度:{lenmod}')
@@ -226,6 +226,8 @@ if __name__ == '__main__':
         temp = str(quick_pow(int(buf), e, p*q))
         temp = temp.zfill(lenmod)
         miwen += temp
+    t2 = time.time()
+    print(f'加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
     print(f'加密后密文(密文分组每组长为{lenmod}，即模数的十进制位数，不足用0补齐):{miwen}')
 
     ##解密
