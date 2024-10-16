@@ -7,4 +7,7 @@ https://d2f13fb5.cryptolabs2024.pages.dev/
 #### CBC AES
 ![alt text](assets/image-2.png)
 ### lab2
+#### RSA
 ![alt text](assets/image.png)
+#### RSA并行
+![alt text](assets/image-3.png)
