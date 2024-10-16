@@ -238,6 +238,33 @@ def encodethread(content: str) -> str:
         # 按照提交顺序构建 miwen
         miwen = ''.join(results)
         return miwen
+    
+def encodeprocess(content: str) -> str:
+    """"
+    Args:
+        content (str): _description_ 传入的文本内容的ASCII码字符
+ 
+    Returns:
+        str: _description_
+    """
+    miwen = ''
+    with futures.ProcessPoolExecutor() as executor:
+        to_do = []
+        results = [None] * (len(content) // 6)  # 创建一个列表来存储结果
+
+        for index in range(0, len(content), 6):
+            buf = str(content[index:index+6])
+            future = executor.submit(quick_pow, int(buf), e, p*q)
+            to_do.append((index // 6, future))  # 记录提交的顺序和任务
+
+        # 等待所有任务完成并按照提交顺序获取结果
+        for idx, future in to_do:
+            res = future.result()
+            results[idx] = str(res).zfill(lenmod)
+
+        # 按照提交顺序构建 miwen
+        miwen = ''.join(results)
+        return miwen
 
             
             
@@ -256,6 +283,10 @@ if __name__ == '__main__':
     minthread = encodethread(c)
     t2 = time.time()
     print(f'并行加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
+    t1 = time.time()
+    minprocess = encodeprocess(c)
+    t2 = time.time()
+    print(f'并行加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
     
     
     
@@ -268,6 +299,6 @@ if __name__ == '__main__':
         miwen += temp
     t2 = time.time()
     print(f'加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
-    print("是否相等:", minthread==miwen)
+    print("是否相等:", minthread==minprocess==miwen)
 
   
