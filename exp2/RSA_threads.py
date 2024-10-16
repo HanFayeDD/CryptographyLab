@@ -216,15 +216,21 @@ def encodethread(content: str) -> str:
     miwen = ''
     with futures.ThreadPoolExecutor(max_workers=20) as executor:
         to_do = []
-        for i in range(0, len(c), 6):
-            buf = str(c[i:i+6])
+        results = [None] * (len(c) // 6)  # 创建一个列表来存储结果
+
+        for index in range(0, len(c), 6):
+            buf = str(c[index:index+6])
             future = executor.submit(quick_pow, int(buf), e, p*q)
-            to_do.append(future)
-        
-        
-        for future in futures.as_completed(to_do):
+            to_do.append((index // 6, future))  # 记录提交的顺序和任务
+
+        # 等待所有任务完成并按照提交顺序获取结果
+        for idx, future in to_do:
             res = future.result()
-            miwen += str(res).zfill(lenmod)
+            results[idx] = str(res).zfill(lenmod)
+
+        # 按照提交顺序构建 miwen
+        miwen = ''.join(results)
+        return miwen
 
             
             
@@ -240,7 +246,7 @@ if __name__ == '__main__':
 
     p, q, e, d, lenmod = get_Params()
     t1 = time.time()
-    encodethread(content)
+    minthread = encodethread(content)
     t2 = time.time()
     print(f'并行加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
     
@@ -255,5 +261,6 @@ if __name__ == '__main__':
         miwen += temp
     t2 = time.time()
     print(f'加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
+    print("是否相等:", minthread==miwen)
 
   
