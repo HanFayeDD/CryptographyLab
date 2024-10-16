@@ -213,13 +213,20 @@ def get_Params(min_boundary:int =2**128, max_boundary:int=2**129-1) -> tuple:
 
          
 def encodethread(content: str) -> str:
+    """"
+    Args:
+        content (str): _description_ 传入的文本内容的ASCII码字符
+ 
+    Returns:
+        str: _description_
+    """
     miwen = ''
-    with futures.ThreadPoolExecutor(max_workers=20) as executor:
+    with futures.ThreadPoolExecutor() as executor:
         to_do = []
-        results = [None] * (len(c) // 6)  # 创建一个列表来存储结果
+        results = [None] * (len(content) // 6)  # 创建一个列表来存储结果
 
-        for index in range(0, len(c), 6):
-            buf = str(c[index:index+6])
+        for index in range(0, len(content), 6):
+            buf = str(content[index:index+6])
             future = executor.submit(quick_pow, int(buf), e, p*q)
             to_do.append((index // 6, future))  # 记录提交的顺序和任务
 
@@ -246,7 +253,7 @@ if __name__ == '__main__':
 
     p, q, e, d, lenmod = get_Params()
     t1 = time.time()
-    minthread = encodethread(content)
+    minthread = encodethread(c)
     t2 = time.time()
     print(f'并行加密时间(产生参数+加密，不包括IO读取):{t2-t1:.6f}秒')
     
