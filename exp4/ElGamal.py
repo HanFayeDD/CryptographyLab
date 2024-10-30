@@ -192,7 +192,9 @@ def verify(m, r, s, p, y, g):
 
 def genInfo(s:str)->str:
     l = 50
-    return '*'*((l-len(s))//2) + s + '*'*((l-len(s))//2)
+    res = '*'*((l-len(s))//2) + s + '*'*((l-len(s))//2)
+    res = res + '*' if len(res)!=l else res
+    return res
 
 
 if __name__ == '__main__':
